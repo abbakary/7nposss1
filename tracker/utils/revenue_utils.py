@@ -91,13 +91,13 @@ def get_revenue_by_order_type_this_month():
     now = timezone.now()
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(seconds=1)
-    
+
     invoices_qs = Invoice.objects.filter(
-        status__in=['issued', 'paid'],
+        status__in=['draft', 'issued', 'paid'],
         invoice_date__gte=month_start.date(),
         invoice_date__lte=month_end.date()
     )
-    
+
     return get_revenue_by_order_type(invoices_qs)
 
 
