@@ -593,7 +593,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h1><i class="fa fa-truck me-2"></i>Vehicle Service Tracking Dashboard</h1>
-            <p>Track vehicles for service with daily, weekly, and monthly analytics</p>
+            <p>Real-time tracking of vehicle services with comprehensive analytics and performance metrics</p>
         </div>
         {% if user.is_superuser %}
         <div>
@@ -602,6 +602,50 @@
             </button>
         </div>
         {% endif %}
+    </div>
+</div>
+
+<!-- Quick Overview Cards -->
+<div class="row g-3 mb-4" id="quickOverviewCards">
+    <div class="col-lg-3 col-md-6">
+        <div class="tracking-status-card active-vehicles">
+            <div class="status-icon"><i class="fa fa-car-alt"></i></div>
+            <div class="status-content">
+                <div class="status-value" id="quickTotalVehicles">0</div>
+                <div class="status-label">Active Vehicles</div>
+                <div class="status-trend" id="quickVehicleTrend"><i class="fa fa-arrow-up"></i> This period</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="tracking-status-card services-completed">
+            <div class="status-icon"><i class="fa fa-check-circle"></i></div>
+            <div class="status-content">
+                <div class="status-value" id="quickCompletedServices">0</div>
+                <div class="status-label">Services Completed</div>
+                <div class="status-trend" id="quickCompletionRate"><i class="fa fa-star"></i> On track</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="tracking-status-card repeat-customers">
+            <div class="status-icon"><i class="fa fa-redo-alt"></i></div>
+            <div class="status-content">
+                <div class="status-value" id="quickReturningCount">0</div>
+                <div class="status-label">Returning Vehicles</div>
+                <div class="status-trend" id="quickReturnRate"><i class="fa fa-sync"></i> Repeat business</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="tracking-status-card total-revenue">
+            <div class="status-icon"><i class="fa fa-money-bill-wave"></i></div>
+            <div class="status-content">
+                <div class="status-value" id="quickTotalRevenue">0</div>
+                <div class="status-label">Total Revenue</div>
+                <div class="status-trend" id="quickRevenueGrowth"><i class="fa fa-chart-line"></i> Strong growth</div>
+            </div>
+        </div>
     </div>
 </div>
 
