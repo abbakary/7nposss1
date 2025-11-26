@@ -224,7 +224,11 @@ def create_sample_data():
         'Engine tune-up and diagnostics',
         'Transmission fluid service'
     ]
-    
+
+    # Track which customers have been visited on each date
+    # Format: {customer_id: set of visit dates}
+    customer_visit_tracker = {}
+
     order_num = 0
     for status, base_days_ago in order_configs:
         order_num += 1
