@@ -1164,10 +1164,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 ).join(' ')
                 : '<span style="color: #999;">-</span>';
 
-            const returningBadge = vehicle.is_returning ? '<span class="badge-custom badge-returning">Returning</span>' : '';
+            const returningBadge = vehicle.is_returning ? '<span class="badge-custom badge-returning"><i class="fa fa-redo me-1"></i>Returning</span>' : '';
 
-            const statusText = vehicle.order_stats.completed > 0 ? 'Completed' : 'Pending';
-            const statusBadge = vehicle.order_stats.completed > 0 ? 'bg-success' : 'bg-warning';
+            // Service completion rate
+            const totalOrders = vehicle.order_count || 0;
+            const completedOrders = vehicle.order_stats.completed || 0;
+            const completionRate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
+
+            // Service status indicator
+            let statusBadge = 'bg-secondary';
+            let statusText = 'Tracking';
+            if (vehicle.order_stats.completed > 0) {
+                statusBadge = 'bg-success';
+                statusText = `Completed (${completionRate}%)`;
+            } else if (vehicle.order_stats.in_progress > 0) {
+                statusBadge = 'bg-info';
+                statusText = 'In Service';
+            } else if (vehicle.order_stats.pending > 0) {
+                statusBadge = 'bg-warning';
+                statusText = 'In Queue';
+            }
+
+            // Avg spending
+            const avgSpending = vehicle.invoice_count > 0 ? vehicle.total_spent / vehicle.invoice_count : 0;
 
             row.innerHTML = `
                 <td style="text-align: center;">
@@ -1175,13 +1194,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fa fa-chevron-down"></i>
                     </span>
                 </td>
-                <td><strong>${vehicle.plate_number}</strong></td>
-                <td>${vehicle.customer_name}</td>
+                <td>
+                    <strong>${vehicle.plate_number}</strong>
+                    <br><small class="text-muted">${vehicle.make || '-'} ${vehicle.model || ''}</small>
+                </td>
+                <td>
+                    <div>${vehicle.customer_name}</div>
+                    <small class="text-muted" style="display:block;">${vehicle.customer_phone}</small>
+                </td>
                 <td>${serviceTypesBadges}</td>
-                <td style="text-align: center;"><strong>${vehicle.order_count || 0}</strong></td>
-                <td style="text-align: center;"><strong>${vehicle.invoice_count}</strong></td>
-                <td><span class="badge ${statusBadge}">${statusText}</span> ${returningBadge}</td>
-                <td style="text-align: right;"><strong>${formatCurrency(vehicle.total_spent)}</strong></td>
+                <td style="text-align: center;">
+                    <div><strong>${vehicle.order_count || 0}</strong></div>
+                    <small class="text-muted">Total Orders</small>
+                </td>
+                <td style="text-align: center;">
+                    <div><strong>${vehicle.invoice_count}</strong></div>
+                    <small class="text-muted">Services</small>
+                </td>
+                <td>
+                    <span class="badge ${statusBadge}">${statusText}</span>
+                    ${returningBadge}
+                </td>
+                <td style="text-align: right;">
+                    <div><strong>${formatCurrency(vehicle.total_spent)}</strong></div>
+                    <small class="text-muted">Total / ${formatCurrency(avgSpending)} Avg</small>
+                </td>
                 <td style="text-align: right;">
                     <button class="btn btn-sm btn-outline-primary" onclick="viewVehicleDetails(${vehicle.id}, ${vehicle.customer_id}, '${vehicle.plate_number.replace(/'/g, "\'")}')">
                         <i class="fa fa-eye me-1"></i>View
