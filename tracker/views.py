@@ -47,8 +47,12 @@ logger = logging.getLogger(__name__)
 
 
 def _mark_overdue_orders():
+    """
+    Mark orders as overdue after 9 calendar hours elapsed.
+    Simple calculation: just check elapsed time, no working hour complexity.
+    """
     try:
-        from .utils.time_utils import is_order_overdue, calculate_working_hours_between, OVERDUE_THRESHOLD_HOURS
+        from .utils.time_utils import is_order_overdue, OVERDUE_THRESHOLD_HOURS
 
         now = timezone.now()
         # Ensure inquiries are treated as completed (retroactively normalize existing data)
@@ -59,11 +63,8 @@ def _mark_overdue_orders():
         created_cutoff = now - timedelta(minutes=10)
         Order.objects.filter(status="created", created_at__lte=created_cutoff).exclude(type='inquiry').update(status="in_progress", started_at=F('created_at'))
 
-        # Mark orders as overdue based on working hours elapsed (9 working hours = 8 AM to 5 PM)
-        # Check both 'in_progress' and 'created' orders that have exceeded the 9-hour threshold
-        # Using OVERDUE_THRESHOLD_HOURS constant (currently set to 9 hours)
-
-        # 1. Check in_progress orders with started_at set
+        # Mark orders as overdue if they've been active for 9+ calendar hours
+        # Check in_progress orders with started_at set
         in_progress_orders = Order.objects.filter(
             status='in_progress',
             started_at__isnull=False
@@ -74,9 +75,8 @@ def _mark_overdue_orders():
                 order.status = 'overdue'
                 order.save(update_fields=['status'])
 
-        # 2. Check created orders that are waiting too long (created but not yet auto-progressed)
+        # Check created orders that are waiting too long (created but not yet auto-progressed)
         # An order in 'created' status for 9+ hours should be marked as overdue
-        # Use the same calculation: if 9 working hours have elapsed since created_at
         created_orders = Order.objects.filter(
             status='created',
             created_at__isnull=False
@@ -2035,12 +2035,8 @@ def create_order_for_customer(request: HttpRequest, pk: int):
             # Update customer visit/arrival status using centralized service
             try:
                 from .services import CustomerService
-                now_ts = timezone.now()
-                c.arrival_time = now_ts
-                c.current_status = 'arrived'
-                c.last_visit = now_ts
-                c.save(update_fields=['arrival_time','current_status','last_visit'])
-                # Use centralized service to increment visit count (avoids duplicates)
+                # update_customer_visit() handles last_visit and total_visits updates
+                # Do NOT manually set last_visit before calling it, as this breaks visit counting
                 CustomerService.update_customer_visit(c)
             except Exception:
                 pass
@@ -2690,7 +2686,7 @@ def orders_list(request: HttpRequest):
     from django.db.models import Q, Sum, Count
 
     # Persist overdue statuses before listing
-    _mark_overdue_orders(hours=24)
+    _mark_overdue_orders()
 
     # Get timezone from cookie or use default
     tzname = request.COOKIES.get('django_timezone')
@@ -4769,15 +4765,14 @@ def api_notifications_summary(request: HttpRequest):
     """Return notification summary for header dropdown: today's visitors, low stock, overdue orders"""
     from datetime import timedelta
     stock_threshold = int(request.GET.get('stock_threshold', 5) or 5)
-    overdue_hours = int(request.GET.get('overdue_hours', 24) or 24)
 
     # Normalize statuses once per request
-    _mark_overdue_orders(hours=overdue_hours)
+    _mark_overdue_orders()
 
     # Use timezone-aware date for consistency
     today_date = timezone.localdate()
     now = timezone.now()
-    cutoff = now - timedelta(hours=overdue_hours)
+    cutoff = now - timedelta(hours=24)
 
     # Today's visitors (customers who registered today OR have orders today)
     from django.db.models import Q
