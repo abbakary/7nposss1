@@ -760,6 +760,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('metricReturningVehicles').textContent = summary.returning_vehicles;
         document.getElementById('metricCompletedOrders').textContent = summary.order_stats.completed;
         document.getElementById('metricTotalSpent').textContent = formatCurrency(summary.total_spent);
+
+        // Display revenue by order type if available
+        if (summary.revenue_by_type) {
+            const revenueMetricsRow = document.getElementById('revenueMetricsRow');
+            revenueMetricsRow.style.display = 'block';
+
+            document.getElementById('metricRevenueSales').textContent = formatCurrency(summary.revenue_by_type.sales || 0);
+            document.getElementById('metricRevenueService').textContent = formatCurrency(summary.revenue_by_type.service || 0);
+            document.getElementById('metricRevenueLabour').textContent = formatCurrency(summary.revenue_by_type.labour || 0);
+            document.getElementById('metricRevenueUnknown').textContent = formatCurrency(summary.revenue_by_type.unknown || 0);
+        }
     }
     
     function renderVehiclesTable(vehicles) {
