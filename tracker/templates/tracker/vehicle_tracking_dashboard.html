@@ -1773,13 +1773,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const timelineContainer = document.getElementById('serviceTimeline');
         const timelineEmpty = document.getElementById('timelineEmpty');
         const timelineSection = document.getElementById('timelineSection');
+        const summarySection = document.getElementById('serviceSummarySection');
 
         if (!timelineSection) return;
 
         // Collect all service events from all vehicles
         const events = [];
+        const serviceTypeCount = {};
+        let totalServiceAmount = 0;
+        const uniqueVehicles = new Set();
+
         vehicles.forEach(vehicle => {
             if (vehicle.invoices && vehicle.invoices.length > 0) {
+                uniqueVehicles.add(vehicle.plate_number);
                 vehicle.invoices.forEach(invoice => {
                     events.push({
                         date: new Date(invoice.invoice_date),
@@ -1793,6 +1799,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         vehicle_id: vehicle.id,
                         status: invoice.status || 'completed'
                     });
+
+                    totalServiceAmount += invoice.total_amount;
+
+                    // Count service types
+                    if (invoice.categories && invoice.categories.length > 0) {
+                        invoice.categories.forEach(cat => {
+                            serviceTypeCount[cat] = (serviceTypeCount[cat] || 0) + 1;
+                        });
+                    } else {
+                        serviceTypeCount['General'] = (serviceTypeCount['General'] || 0) + 1;
+                    }
                 });
             }
         });
@@ -1801,11 +1818,34 @@ document.addEventListener('DOMContentLoaded', function() {
             timelineContainer.style.display = 'none';
             timelineEmpty.style.display = 'block';
             timelineSection.style.display = 'block';
+            summarySection.style.display = 'none';
             return;
         }
 
         // Sort events by date (newest first)
         events.sort((a, b) => b.date - a.date);
+
+        // Find most common service type
+        let mostCommonService = '-';
+        let maxCount = 0;
+        Object.entries(serviceTypeCount).forEach(([type, count]) => {
+            if (count > maxCount) {
+                maxCount = count;
+                mostCommonService = type;
+            }
+        });
+
+        // Calculate average spend
+        const averageSpend = events.length > 0 ? totalServiceAmount / events.length : 0;
+
+        // Update summary cards
+        if (summarySection) {
+            document.getElementById('summaryTotalServices').textContent = events.length;
+            document.getElementById('summaryAverageSpend').textContent = formatCurrency(averageSpend);
+            document.getElementById('summaryMostCommon').textContent = mostCommonService;
+            document.getElementById('summaryUniqueCars').textContent = uniqueVehicles.size;
+            summarySection.style.display = 'block';
+        }
 
         // Create timeline HTML
         let timelineHTML = '';
