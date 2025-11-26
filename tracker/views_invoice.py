@@ -572,9 +572,32 @@ def api_upload_extract_invoice(request):
             logger.warning(f"Failed to bulk create invoice line items: {e}")
 
         # IMPORTANT: Preserve extracted Net, VAT, and Gross values for uploaded invoices
-        inv.subtotal = header.get('subtotal') or Decimal('0')
-        inv.tax_amount = header.get('tax') or Decimal('0')
-        inv.total_amount = header.get('total') or (inv.subtotal + inv.tax_amount)
+        # But if extraction didn't find subtotal/tax, calculate from line items
+        extracted_subtotal = header.get('subtotal')
+        extracted_tax = header.get('tax')
+        extracted_total = header.get('total')
+
+        inv.subtotal = ensure_decimal(extracted_subtotal, None)
+        inv.tax_amount = ensure_decimal(extracted_tax, None)
+        inv.total_amount = ensure_decimal(extracted_total, None)
+
+        # If subtotal and tax weren't extracted but we have a total and line items,
+        # calculate subtotal from line items and derive tax
+        if (inv.subtotal is None or inv.subtotal == Decimal('0')) and \
+           (inv.tax_amount is None or inv.tax_amount == Decimal('0')):
+            has_items = inv.id and InvoiceLineItem.objects.filter(invoice=inv).exists()
+            if has_items:
+                # Calculate from line items
+                inv.calculate_totals()
+            # If still no total amount, set sensible defaults
+            if inv.total_amount is None or inv.total_amount == Decimal('0'):
+                inv.total_amount = inv.subtotal + (inv.tax_amount or Decimal('0'))
+
+        # Final defaults: ensure all are Decimal and not None
+        inv.subtotal = inv.subtotal or Decimal('0')
+        inv.tax_amount = inv.tax_amount or Decimal('0')
+        inv.total_amount = inv.total_amount or (inv.subtotal + inv.tax_amount)
+
         inv.save(update_fields=['subtotal', 'tax_amount', 'total_amount'])
 
         # Create payment record for tracking
