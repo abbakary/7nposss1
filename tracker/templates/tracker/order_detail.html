@@ -828,19 +828,19 @@
 
       <!-- Multiple Order Types Section -->
       {% if order.type != 'inquiry' %}
-      <div class="card shadow-sm mb-4 order-components-card" style="background-color: white;">
+      <div class="card shadow-sm mb-4 order-components-card" style="background-color: #f0f8ff; border: 2px solid #0d6efd;">
         <div class="card-header bg-gradient-info text-white d-flex justify-content-between align-items-center">
           <h6 class="mb-0"><i class="fa fa-layer-group me-2"></i>Additional Items & Services</h6>
           {% if order.status != 'cancelled' %}
-          <div class="btn-group btn-group-sm" role="group" style="color: #0d6efd;">
-           
-            <button type="button" class="btn btn-light text-info fw-medium" id="uploadAdditionalInvoiceBtn" data-bs-toggle="modal" data-bs-target="#uploadAdditionalInvoiceModal" style="background-color: rgba(255, 179, 0, 0.773);">
-              <i class="fa fa-file-upload me-1" style="background-color: rgb(255, 174, 0);"></i>Upload Invoice
+          <div class="btn-group btn-group-sm" role="group">
+
+            <button type="button" class="btn btn-warning fw-bold text-dark" id="uploadAdditionalInvoiceBtn" data-bs-toggle="modal" data-bs-target="#uploadAdditionalInvoiceModal" style="background-color: #FFB300; border: none; padding: 0.6rem 1.2rem; font-size: 0.95rem; box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);">
+              <i class="fa fa-file-upload me-1"></i>Upload Invoice
             </button>
           </div>
           {% endif %}
         </div>
-        <div class="card-body">
+        <div class="card-body" style="background-color: #f0f8ff;">
           {% if order.components.exists or order.invoice_links.exists %}
           <div class="components-and-invoices-list">
             <!-- Order Components -->
