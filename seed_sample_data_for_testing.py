@@ -290,13 +290,14 @@ def create_sample_data():
 
             # Check if this customer was already visited on this date
             # Only increment visit count once per customer per day
-            if not hasattr(customer, '_visited_dates'):
-                customer._visited_dates = {}
-
             visit_date = created_at.date() if hasattr(created_at, 'date') else created_at
-            if visit_date not in customer._visited_dates:
+
+            if customer.id not in customer_visit_tracker:
+                customer_visit_tracker[customer.id] = set()
+
+            if visit_date not in customer_visit_tracker[customer.id]:
                 customer.total_visits = (customer.total_visits or 0) + 1
-                customer._visited_dates[visit_date] = True
+                customer_visit_tracker[customer.id].add(visit_date)
 
             customer.save(update_fields=['last_visit', 'arrival_time', 'current_status', 'total_visits'])
             
