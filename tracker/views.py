@@ -492,6 +492,14 @@ def dashboard(request: HttpRequest):
                 amount = Decimal(str(item['total'])) if item['total'] is not None else Decimal('0')
                 revenue_by_branch_tsh[branch_name] = amount
 
+        except Exception as e:
+            logger.error(f"Error aggregating revenue KPIs from invoices: {e}")
+            gross_revenue_this_month = Decimal('0')
+            total_gross_revenue = Decimal('0')
+            avg_invoice_amount = Decimal('0')
+            invoices_this_month_count = 0
+            revenue_by_branch_tsh = {}
+
         # Revenue breakdown by order type
         revenue_by_type = {}
         revenue_by_type_this_month = {}
@@ -521,14 +529,6 @@ def dashboard(request: HttpRequest):
                 'total': Decimal('0'),
                 'count': 0,
             }
-
-        except Exception as e:
-            logger.error(f"Error aggregating revenue KPIs from invoices: {e}")
-            gross_revenue_this_month = Decimal('0')
-            total_gross_revenue = Decimal('0')
-            avg_invoice_amount = Decimal('0')
-            invoices_this_month_count = 0
-            revenue_by_branch_tsh = {}
 
         metrics = {
             'total_orders': total_orders,
