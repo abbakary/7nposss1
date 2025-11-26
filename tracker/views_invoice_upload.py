@@ -866,18 +866,33 @@ def api_create_invoice_from_upload(request):
                 logger.warning(f"Failed to bulk create line items: {e}")
 
             # IMPORTANT: Preserve extracted Net, VAT, Gross values for uploaded invoices
-            # If extracted totals are missing/zero but we have line items, compute from items
+            # If extracted subtotal is missing/zero but we have line items, compute from items
             try:
                 has_items = inv.line_items.exists()
             except Exception:
                 has_items = False
 
-            # Recalculate if subtotal and tax are both missing/zero (extraction didn't find them)
-            # but we have line items that can be summed
-            if has_items and (inv.subtotal is None or inv.subtotal == Decimal('0')) and \
-               (inv.tax_amount is None or inv.tax_amount == Decimal('0')):
-                inv.calculate_totals()
-                logger.info(f"Recalculated invoice totals from line items: subtotal={inv.subtotal}, tax={inv.tax_amount}, total={inv.total_amount}")
+            # Ensure subtotal is set from line items if missing/zero
+            # This prevents NET REVENUE from showing 0 when line items exist
+            if has_items and (inv.subtotal is None or inv.subtotal == Decimal('0')):
+                line_items_subtotal = sum(
+                    Decimal(str(item.line_total)) for item in inv.line_items.all()
+                )
+                if line_items_subtotal > 0:
+                    inv.subtotal = line_items_subtotal
+
+                    # If tax_amount wasn't extracted, calculate from line item taxes
+                    if inv.tax_amount is None or inv.tax_amount == Decimal('0'):
+                        per_item_tax = sum(
+                            Decimal(str(item.tax_amount or 0)) for item in inv.line_items.all()
+                        )
+                        inv.tax_amount = per_item_tax
+
+                    # Ensure total_amount is correct
+                    if inv.total_amount is None or inv.total_amount == Decimal('0'):
+                        inv.total_amount = inv.subtotal + (inv.tax_amount or Decimal('0'))
+
+                    logger.info(f"Calculated invoice totals from line items: subtotal={inv.subtotal}, tax={inv.tax_amount}, total={inv.total_amount}")
 
             inv.save(update_fields=['subtotal', 'tax_amount', 'total_amount'])
 
