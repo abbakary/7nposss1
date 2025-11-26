@@ -1648,39 +1648,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function showLoadingSpinner(show) {
         document.getElementById('loadingSpinner').classList.toggle('active', show);
     }
-    
+
     function showChartSkeletons(show) {
-        const skeletons = [
-            'trendChartSkeleton',
-            'typeChartSkeleton',
-            'topVehiclesChartSkeleton'
-        ];
-        
-        skeletons.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = show ? 'block' : 'none';
-            }
-        });
-        
-        // Hide chart canvases when showing skeletons
-        const canvases = [
-            'trendChart',
-            'typeChart',
-            'topVehiclesChart'
-        ];
-        
-        canvases.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = show ? 'none' : 'block';
-            }
-        });
+        // Chart skeletons removed for simplification
+        return;
     }
 
     function ensureCanvasesVisible() {
-        ['trendChart', 'typeChart', 'topVehiclesChart'].forEach(id => {
-            const el = document.getElementById(id);
+        // Chart canvases removed for simplification
+        return;
             if (el) el.style.display = 'block';
         });
     }
