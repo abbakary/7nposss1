@@ -1587,197 +1587,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateCharts(analyticsData) {
-        ensureCanvasesVisible();
-        console.log('Charts payload sizes', {
-            trends: Array.isArray(analyticsData.trends) ? analyticsData.trends.length : 0,
-            spending_by_type: Array.isArray(analyticsData.spending_by_type) ? analyticsData.spending_by_type.length : 0,
-            top_vehicles: Array.isArray(analyticsData.top_vehicles) ? analyticsData.top_vehicles.length : 0
-        });
-        updateTrendChart(analyticsData.trends);
-        updateTypeChart(analyticsData.spending_by_type);
-        updateTopVehiclesChart(analyticsData.top_vehicles);
+        // Charts removed for simplification
+        return;
     }
-    
+
     function updateTrendChart(trends) {
-        const canvas = document.getElementById('trendChart');
-        const ctx = canvas.getContext('2d');
-        const labels = trends.map(t => {
-            const date = (function(s){
-                const ymd = (s || '').split('T')[0].split('-');
-                if (ymd.length === 3) return new Date(Number(ymd[0]), Number(ymd[1]) - 1, Number(ymd[2]));
-                const d = new Date(s);
-                return isNaN(d) ? new Date() : d;
-            })(t.date);
-            if (filters.period === 'daily') {
-                return date.toLocaleDateString();
-            } else if (filters.period === 'weekly') {
-                return `Week of ${date.toLocaleDateString()}`;
-            } else {
-                return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-            }
-        });
-        const amounts = trends.map(t => t.total_amount || 0);
-        const counts = trends.map(t => t.vehicle_count || 0);
-        
-        if (trendChart) trendChart.destroy();
-        
-        trendChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Total Spending',
-                    data: amounts,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    yAxisID: 'y'
-                }, {
-                    label: 'Vehicle Count',
-                    data: counts,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    yAxisID: 'y1'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { 
-                    legend: { 
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    } 
-                },
-                scales: { 
-                    y: { 
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Total Spending'
-                        },
-                        beginAtZero: true
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Vehicle Count'
-                        },
-                        beginAtZero: true,
-                        grid: {
-                            drawOnChartArea: false
-                        }
-                    }
-                },
-                animation: {
-                    duration: isInitialLoad ? 0 : 1000,
-                    easing: 'easeOutQuart'
-                }
-            }
-        });
+        // Trend chart removed for simplification
+        return;
     }
-    
+
     function updateTypeChart(spendingByType) {
-        const canvas = document.getElementById('typeChart');
-        const ctx = canvas.getContext('2d');
-        const labels = spendingByType.map(t => t.type.charAt(0).toUpperCase() + t.type.slice(1));
-        const values = spendingByType.map(t => t.total || 0);
-        const colors = { 
-            service: '#0d6efd', 
-            sales: '#198754', 
-            labour: '#0dcaf0',
-            default: '#6c757d'
-        };
-        
-        if (typeChart) typeChart.destroy();
-        
-        typeChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: labels.map(l => colors[l.toLowerCase()] || colors.default),
-                    borderColor: 'white',
-                    borderWidth: 2,
-                    hoverOffset: 15
-                }]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${formatCurrency(value)} (${percentage}%)`;
-                            }
-                        }
-                    }
-                },
-                animation: {
-                    duration: isInitialLoad ? 0 : 1000,
-                    easing: 'easeOutQuart'
-                }
-            }
-        });
+        // Type chart removed for simplification
+        return;
     }
-    
+
     function updateTopVehiclesChart(topVehicles) {
-        const canvas = document.getElementById('topVehiclesChart');
-        const ctx = canvas.getContext('2d');
-        const labels = topVehicles.map(v => {
-            const nm = v.customer_name || '';
-            const name = nm.length > 15 ? nm.substring(0, 15) + '...' : nm;
-            return `${v.plate_number}\n${name}`;
-        });
-        const values = topVehicles.map(v => v.total_spent || 0);
-        
-        if (topVehiclesChart) topVehiclesChart.destroy();
-        
-        topVehiclesChart = new Chart(ctx, {
-            type: 'bar',
-            data: { 
-                labels, 
-                datasets: [{
-                    label: 'Total Spent', 
-                    data: values, 
-                    backgroundColor: '#667eea', 
-                    borderRadius: 5,
-                    borderWidth: 0
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                indexAxis: 'y', 
-                plugins: { 
-                    legend: { 
-                        display: false 
-                    },
-                    tooltip: {
+        // Top vehicles chart removed for simplification
+        return;
                         callbacks: {
                             label: function(context) {
                                 return `Total Spent: ${formatCurrency(context.raw)}`;
