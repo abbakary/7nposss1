@@ -1370,12 +1370,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Render timeline before table
         renderServiceTimeline(vehicles);
 
-        // Show charts section
-        const chartsRow = document.getElementById('chartsRow');
-        if (chartsRow) {
-            chartsRow.style.display = 'block';
-        }
-
         vehicles.forEach((vehicle, idx) => {
             const row = document.createElement('tr');
             row.className = 'vehicle-row-expandable';
