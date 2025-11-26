@@ -3273,6 +3273,26 @@ def order_detail(request: HttpRequest, pk: int):
     except Exception:
         line_item_categories = {}
 
+    # Check if order exceeds 9+ working hours
+    exceeds_9_hours = False
+    if order.started_at:
+        from .utils.time_utils import is_order_overdue
+        exceeds_9_hours = is_order_overdue(order.started_at) if order.status == 'in_progress' else (
+            order.actual_duration and order.actual_duration >= (9 * 60)  # 9 hours in minutes
+        )
+
+    # Get delay reason categories and reasons
+    delay_reason_categories = []
+    delay_reasons_by_category = {}
+    try:
+        from tracker.models import DelayReasonCategory, DelayReason
+        delay_reason_categories = list(DelayReasonCategory.objects.filter(is_active=True).values('category', 'id'))
+        for category in DelayReasonCategory.objects.filter(is_active=True):
+            reasons = DelayReason.objects.filter(category=category, is_active=True).values('id', 'reason_text')
+            delay_reasons_by_category[category.category] = list(reasons)
+    except Exception:
+        pass
+
     context = {
         "order": order,
         "invoice": invoice,
@@ -3280,6 +3300,9 @@ def order_detail(request: HttpRequest, pk: int):
         "time_metrics": time_metrics,
         "available_invoices": available_invoices,
         "line_item_categories": line_item_categories,
+        "exceeds_9_hours": exceeds_9_hours,
+        "delay_reason_categories": delay_reason_categories,
+        "delay_reasons_by_category": delay_reasons_by_category,
     }
     return render(request, "tracker/order_detail.html", context)
 
