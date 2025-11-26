@@ -1061,73 +1061,31 @@
 
 <!-- Advanced Metrics Section -->
 <div class="advanced-metrics-section mb-4">
-    <h5 class="mb-3" style="color: #333;">
-        <i class="fa fa-chart-line me-2"></i>Advanced Tracking Metrics
-    </h5>
-
-    <!-- Revenue by Order Type -->
-    <div class="row g-3 mb-4" id="revenueMetricsRow" style="display:none;">
-        <h6 class="w-100" style="margin-bottom: 0; padding-bottom: 10px; color: #666;">
+    <!-- Revenue Breakdown (Horizontal, Compact) -->
+    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
+        <h6 style="color: #333; margin-bottom: 12px; font-size: 0.95rem;">
             <i class="fa fa-money-bill-wave me-2"></i>Revenue Breakdown
         </h6>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #28a745;">
-                <div class="metric-label"><i class="fa fa-shopping-cart me-1"></i>Sales</div>
-                <div class="metric-value" id="metricRevenueSales" style="color: #28a745;">-</div>
-                <small class="text-muted" id="metricRevenueSalesLabel">TSH</small>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+            <div style="padding: 10px; background: #f8f9fa; border-left: 3px solid #28a745; border-radius: 4px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #666; margin-bottom: 4px;"><i class="fa fa-shopping-cart me-1"></i>Sales</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #28a745;" id="metricRevenueSales">0</div>
+                <div style="font-size: 0.75rem; color: #999;">TSH</div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #0d6efd;">
-                <div class="metric-label"><i class="fa fa-wrench me-1"></i>Service</div>
-                <div class="metric-value" id="metricRevenueService" style="color: #0d6efd;">-</div>
-                <small class="text-muted" id="metricRevenueServiceLabel">TSH</small>
+            <div style="padding: 10px; background: #f8f9fa; border-left: 3px solid #0d6efd; border-radius: 4px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #666; margin-bottom: 4px;"><i class="fa fa-wrench me-1"></i>Service</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #0d6efd;" id="metricRevenueService">0</div>
+                <div style="font-size: 0.75rem; color: #999;">TSH</div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #0dcaf0;">
-                <div class="metric-label"><i class="fa fa-tools me-1"></i>Labour</div>
-                <div class="metric-value" id="metricRevenueLabour" style="color: #0dcaf0;">-</div>
-                <small class="text-muted" id="metricRevenueLabourLabel">TSH</small>
+            <div style="padding: 10px; background: #f8f9fa; border-left: 3px solid #0dcaf0; border-radius: 4px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #666; margin-bottom: 4px;"><i class="fa fa-tools me-1"></i>Labour</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #0dcaf0;" id="metricRevenueLabour">0</div>
+                <div style="font-size: 0.75rem; color: #999;">TSH</div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #ffc107;">
-                <div class="metric-label"><i class="fa fa-question-circle me-1"></i>Other</div>
-                <div class="metric-value" id="metricRevenueUnknown" style="color: #ffc107;">-</div>
-                <small class="text-muted" id="metricRevenueUnknownLabel">TSH</small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Service Analytics -->
-    <div class="row g-3 mb-0">
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #6c757d;">
-                <div class="metric-label"><i class="fa fa-hourglass-half me-1"></i>Avg Turnaround</div>
-                <div class="metric-value" id="metricAvgTurnaround" style="color: #6c757d; font-size: 1.5rem;">-</div>
-                <small class="text-muted">Hours</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #20c997;">
-                <div class="metric-label"><i class="fa fa-sync-alt me-1"></i>Repeat Service %</div>
-                <div class="metric-value" id="metricRepeatServicePct" style="color: #20c997; font-size: 1.5rem;">-</div>
-                <small class="text-muted">Of tracked vehicles</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #fd7e14;">
-                <div class="metric-label"><i class="fa fa-check-double me-1"></i>Avg Services/Vehicle</div>
-                <div class="metric-value" id="metricAvgServicesPerVehicle" style="color: #fd7e14; font-size: 1.5rem;">-</div>
-                <small class="text-muted">Per tracked vehicle</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card" style="border-left: 4px solid #e74c3c;">
-                <div class="metric-label"><i class="fa fa-coins me-1"></i>Avg Spend/Vehicle</div>
-                <div class="metric-value" id="metricAvgSpendPerVehicle" style="color: #e74c3c; font-size: 1.5rem;">-</div>
-                <small class="text-muted">TSH</small>
+            <div style="padding: 10px; background: #f8f9fa; border-left: 3px solid #ffc107; border-radius: 4px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #666; margin-bottom: 4px;"><i class="fa fa-question-circle me-1"></i>Other</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #ffc107;" id="metricRevenueUnknown">0</div>
+                <div style="font-size: 0.75rem; color: #999;">TSH</div>
             </div>
         </div>
     </div>
