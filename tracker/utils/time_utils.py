@@ -11,83 +11,76 @@ from django.utils import timezone
 OVERDUE_THRESHOLD_HOURS = 9
 
 
-def calculate_estimated_duration(started_at: datetime, completed_at: datetime) -> int | None:
-    """
-    Calculate estimated duration in minutes from started_at to completed_at.
-    Uses working hours calculation (8 AM - 5 PM).
-    
-    Args:
-        started_at: Order start datetime
-        completed_at: Order completion datetime
-        
-    Returns:
-        Estimated duration in minutes (int), or None if dates are invalid
-    """
-    if not started_at or not completed_at:
-        return None
-    
-    working_hours = calculate_working_hours_between(started_at, completed_at)
-    if working_hours <= 0:
-        return None
-    
-    # Convert hours to minutes
-    minutes = int(working_hours * 60)
-    return minutes
-
-
 def is_order_overdue(started_at: datetime, now: datetime = None) -> bool:
     """
-    Check if an in-progress order has exceeded the 9-hour working hour threshold.
-    
+    Check if an order has exceeded the 9-hour calendar threshold.
+    Simple calculation: just check elapsed calendar hours, no working hour complexity.
+
     Args:
         started_at: Order start datetime
         now: Current datetime (defaults to timezone.now())
-        
+
     Returns:
-        True if order has been in progress for 9+ working hours, False otherwise
+        True if order has been active for 9+ calendar hours, False otherwise
     """
     if not started_at:
         return False
-    
+
     if now is None:
         now = timezone.now()
-    
-    # Calculate working hours elapsed
-    working_hours_elapsed = calculate_working_hours_between(started_at, now)
-    
-    return working_hours_elapsed >= OVERDUE_THRESHOLD_HOURS
+
+    # Ensure both datetimes are timezone-aware
+    if timezone.is_naive(started_at):
+        started_at = timezone.make_aware(started_at)
+    if timezone.is_naive(now):
+        now = timezone.make_aware(now)
+
+    # Simple calendar hours check
+    elapsed_hours = (now - started_at).total_seconds() / 3600.0
+
+    return elapsed_hours >= OVERDUE_THRESHOLD_HOURS
 
 
 def get_order_overdue_status(order) -> dict:
     """
     Get the overdue status of an order.
-    
+    Simple calculation: just check elapsed calendar hours.
+
     Args:
         order: Order instance
-        
+
     Returns:
         Dictionary with:
-        - is_overdue (bool): Whether the order is overdue
-        - working_hours_elapsed (float): Working hours since start
-        - overdue_hours (float): How many hours over the threshold (0 if not overdue)
+        - is_overdue (bool): Whether the order is overdue (9+ hours elapsed)
+        - hours_elapsed (float): Calendar hours since start
+        - overdue_by_hours (float): How many hours over the threshold (0 if not overdue)
     """
     result = {
         'is_overdue': False,
-        'working_hours_elapsed': 0.0,
-        'overdue_hours': 0.0,
+        'hours_elapsed': 0.0,
+        'overdue_by_hours': 0.0,
     }
-    
+
     if not order.started_at:
         return result
-    
+
     now = timezone.now()
-    working_hours = calculate_working_hours_between(order.started_at, now)
-    result['working_hours_elapsed'] = round(working_hours, 2)
-    
-    if working_hours >= OVERDUE_THRESHOLD_HOURS:
+
+    # Ensure timezone-aware
+    started_at = order.started_at
+    if timezone.is_naive(started_at):
+        started_at = timezone.make_aware(started_at)
+    if timezone.is_naive(now):
+        now = timezone.make_aware(now)
+
+    # Simple calendar hours check
+    elapsed_hours = (now - started_at).total_seconds() / 3600.0
+    result['hours_elapsed'] = round(elapsed_hours, 2)
+
+    if elapsed_hours >= OVERDUE_THRESHOLD_HOURS:
         result['is_overdue'] = True
-        result['overdue_hours'] = round(working_hours - OVERDUE_THRESHOLD_HOURS, 2)
-    
+        result['overdue_by_hours'] = round(elapsed_hours - OVERDUE_THRESHOLD_HOURS, 2)
+
     return result
 
 
