@@ -1293,7 +1293,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadDashboardData() {
         updateFilters();
         showLoadingSpinner(true);
-        showChartSkeletons(true);
 
         const trackingParams = {
             period: filters.period,
@@ -1304,48 +1303,18 @@ document.addEventListener('DOMContentLoaded', function() {
             search: filters.search
         };
 
-        const analyticsParams = {
-            period: filters.period,
-            start_date: filters.start_date,
-            end_date: filters.end_date
-        };
-
-        Promise.all([
-            fetch(buildApiUrl('/tracker/api/vehicles/tracking/data/', trackingParams)).then(r => r.json()),
-            fetch(buildApiUrl('/tracker/api/vehicles/analytics/', analyticsParams)).then(r => r.json())
-        ]).then(([trackingData, analyticsData]) => {
+        fetch(buildApiUrl('/tracker/api/vehicles/tracking/data/', trackingParams)).then(r => r.json())
+        .then(trackingData => {
             if (trackingData.success) {
                 renderMetrics(trackingData.summary);
                 renderVehiclesTable(trackingData.data);
                 lastTrackingVehicles = trackingData.data || [];
-
-                let chartsPayload = null;
-                if (analyticsData && analyticsData.success) {
-                    const hasTrends = Array.isArray(analyticsData.trends) && analyticsData.trends.length > 0;
-                    const hasTypes = Array.isArray(analyticsData.spending_by_type) && analyticsData.spending_by_type.length > 0;
-                    const hasTop = Array.isArray(analyticsData.top_vehicles) && analyticsData.top_vehicles.length > 0;
-                    if (hasTrends || hasTypes || hasTop) {
-                        chartsPayload = analyticsData;
-                    }
-                }
-                if (!chartsPayload) {
-                    chartsPayload = buildAnalyticsFromTracking(lastTrackingVehicles, filters.period);
-                }
-                updateCharts(chartsPayload);
-            } else {
-                const fallback = { trends: [], spending_by_type: [], top_vehicles: [] };
-                updateCharts(fallback);
             }
             showLoadingSpinner(false);
-            showChartSkeletons(false);
             isInitialLoad = false;
         }).catch(error => {
             console.error('Error loading dashboard data:', error);
-            // Fallback to empty charts if both APIs fail
-            const fallback = { trends: [], spending_by_type: [], top_vehicles: [] };
-            updateCharts(fallback);
             showLoadingSpinner(false);
-            showChartSkeletons(false);
             isInitialLoad = false;
         });
     }
