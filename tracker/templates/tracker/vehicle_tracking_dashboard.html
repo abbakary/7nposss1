@@ -997,6 +997,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // View toggle
+    const tableViewBtn = document.getElementById('tableViewBtn');
+    const cardViewBtn = document.getElementById('cardViewBtn');
+    const vehiclesTableContainer = document.getElementById('vehiclesTableContainer');
+
+    tableViewBtn.addEventListener('click', function() {
+        tableViewBtn.classList.add('active');
+        cardViewBtn.classList.remove('active');
+        vehiclesTableContainer.style.display = 'block';
+        vehiclesTableContainer.classList.remove('card-view');
+    });
+
+    cardViewBtn.addEventListener('click', function() {
+        cardViewBtn.classList.add('active');
+        tableViewBtn.classList.remove('active');
+        vehiclesTableContainer.classList.add('card-view');
+    });
+
     // Filter inputs
     document.getElementById('filterBtn').addEventListener('click', loadDashboardData);
     document.querySelectorAll('.filter-input').forEach(input => {
