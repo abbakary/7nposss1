@@ -1567,6 +1567,95 @@
 })();
 </script>
 
+<!-- Delay Reason Dropdown Handler -->
+<script>
+(function(){
+  const exceeds9Hours = {{ exceeds_9_hours|lower }};
+  const delayReasonsByCategoryJson = {
+    {% for category, reasons in delay_reasons_by_category.items %}
+      '{{ category }}': {{ reasons|safe }},
+    {% endfor %}
+  };
+
+  const delayReasonCategory = document.getElementById('delayReasonCategory');
+  const delayReasonDropdown = document.getElementById('delayReasonDropdown');
+  const delayReasonSection = document.getElementById('delayReasonSection');
+  const delayReasonLabel = document.getElementById('delayReasonLabel');
+  const delayReasonRequired = document.getElementById('delayReasonRequired');
+  const delayReasonOptionalText = document.getElementById('delayReasonOptionalText');
+  const delayReasonHelpText = document.getElementById('delayReasonHelpText');
+  const completeForm = document.getElementById('completeForm');
+  const footerSignAndComplete = document.getElementById('footerSignAndComplete');
+
+  // Initialize visibility and requirement
+  function updateDelayReasonUI() {
+    if (exceeds9Hours) {
+      delayReasonRequired.style.display = 'inline';
+      delayReasonOptionalText.style.display = 'none';
+      delayReasonSection.classList.add('bg-danger-light');
+      delayReasonHelpText.textContent = 'This order exceeded 9 working hours. You must select a delay reason.';
+    }
+  }
+
+  // Populate specific reasons based on category
+  function populateReasons(category) {
+    delayReasonDropdown.innerHTML = '<option value="">-- Select Specific Reason --</option>';
+    if (category && delayReasonsByCategoryJson[category]) {
+      delayReasonsByCategoryJson[category].forEach(function(reason) {
+        const option = document.createElement('option');
+        option.value = reason.id;
+        option.textContent = reason.reason_text;
+        delayReasonDropdown.appendChild(option);
+      });
+    }
+  }
+
+  // Event listeners
+  if (delayReasonCategory) {
+    delayReasonCategory.addEventListener('change', function() {
+      populateReasons(this.value);
+      // Clear the dropdown selection when category changes
+      delayReasonDropdown.value = '';
+    });
+  }
+
+  // Validate delay reason on form submission
+  if (completeForm && exceeds9Hours) {
+    completeForm.addEventListener('submit', function(e) {
+      const selectedReason = delayReasonDropdown.value;
+      if (!selectedReason) {
+        e.preventDefault();
+        alert('Please select a delay reason before completing this order.');
+        return false;
+      }
+    });
+  }
+
+  // Also validate when clicking footer button
+  if (footerSignAndComplete && exceeds9Hours) {
+    const originalListener = footerSignAndComplete.onclick;
+    footerSignAndComplete.addEventListener('click', function(e) {
+      const selectedReason = delayReasonDropdown.value;
+      if (!selectedReason) {
+        e.preventDefault();
+        alert('Please select a delay reason before completing this order.');
+        return false;
+      }
+    });
+  }
+
+  // Initialize UI on page load
+  updateDelayReasonUI();
+
+  // Set delay reason data attribute on form for server-side handling
+  if (delayReasonDropdown && completeForm) {
+    completeForm.addEventListener('submit', function() {
+      // The form field name is 'delay_reason' so it will be submitted automatically
+    });
+  }
+})();
+</script>
+
 <!-- Sign Existing Document Modal -->
 <div class="modal fade" id="signExistingModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg signature-modal-container">
