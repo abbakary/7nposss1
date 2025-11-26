@@ -435,6 +435,10 @@ def dashboard(request: HttpRequest):
 
         gross_revenue_this_month = Decimal('0')
         total_gross_revenue = Decimal('0')
+        net_revenue_this_month = Decimal('0')
+        total_net_revenue = Decimal('0')
+        vat_this_month = Decimal('0')
+        total_vat = Decimal('0')
         avg_invoice_amount = Decimal('0')
         invoices_this_month_count = 0
         revenue_by_branch_tsh = {}
@@ -446,12 +450,20 @@ def dashboard(request: HttpRequest):
             # Calculate total gross revenue (all time) = sum of total_amount (subtotal + VAT)
             total_gross_sums = invoices_qs.aggregate(
                 total_gross=Sum('total_amount'),
+                total_net=Sum('subtotal'),
+                total_vat_sum=Sum('tax_amount'),
                 total_count=Count('id'),
                 avg_gross=Avg('total_amount')
             )
 
             if total_gross_sums.get('total_gross') is not None:
                 total_gross_revenue = Decimal(str(total_gross_sums.get('total_gross')))
+
+            if total_gross_sums.get('total_net') is not None:
+                total_net_revenue = Decimal(str(total_gross_sums.get('total_net')))
+
+            if total_gross_sums.get('total_vat_sum') is not None:
+                total_vat = Decimal(str(total_gross_sums.get('total_vat_sum')))
 
             if total_gross_sums.get('avg_gross') is not None:
                 avg_invoice_amount = Decimal(str(total_gross_sums.get('avg_gross')))
@@ -474,11 +486,19 @@ def dashboard(request: HttpRequest):
             # Calculate gross revenue this month (subtotal + VAT)
             month_gross_sums = month_invoices.aggregate(
                 month_gross=Sum('total_amount'),
+                month_net=Sum('subtotal'),
+                month_vat_sum=Sum('tax_amount'),
                 month_count=Count('id')
             )
 
             if month_gross_sums.get('month_gross') is not None:
                 gross_revenue_this_month = Decimal(str(month_gross_sums.get('month_gross')))
+
+            if month_gross_sums.get('month_net') is not None:
+                net_revenue_this_month = Decimal(str(month_gross_sums.get('month_net')))
+
+            if month_gross_sums.get('month_vat_sum') is not None:
+                vat_this_month = Decimal(str(month_gross_sums.get('month_vat_sum')))
 
             if month_gross_sums.get('month_count') is not None:
                 invoices_this_month_count = month_gross_sums.get('month_count')
@@ -497,6 +517,10 @@ def dashboard(request: HttpRequest):
             logger.error(f"Error aggregating revenue KPIs from invoices: {e}")
             gross_revenue_this_month = Decimal('0')
             total_gross_revenue = Decimal('0')
+            net_revenue_this_month = Decimal('0')
+            total_net_revenue = Decimal('0')
+            vat_this_month = Decimal('0')
+            total_vat = Decimal('0')
             avg_invoice_amount = Decimal('0')
             invoices_this_month_count = 0
             revenue_by_branch_tsh = {}
