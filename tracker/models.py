@@ -225,6 +225,12 @@ class Order(models.Model):
     overrun_reported_at = models.DateTimeField(blank=True, null=True)
     overrun_reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders_overrun_reported')
 
+    # Delay reason for orders that exceeded 9+ working hours
+    delay_reason = models.ForeignKey('DelayReason', on_delete=models.SET_NULL, null=True, blank=True, related_name='orders', help_text="Reason for delay if order exceeded 9 hours")
+    delay_reason_reported_at = models.DateTimeField(blank=True, null=True)
+    delay_reason_reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders_delay_reason_reported')
+    exceeded_9_hours = models.BooleanField(default=False, help_text="Whether order exceeded 9 working hours")
+
     # Job card/identification number for quick order lookup (optional)
     job_card_number = models.CharField(max_length=64, blank=True, null=True, unique=True)
 
