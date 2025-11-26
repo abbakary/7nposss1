@@ -448,20 +448,30 @@
     </div>
 </div>
 
-<!-- Period Selection -->
+<!-- Period Selection & Quick Actions -->
 <div class="period-tabs">
-    <button class="period-btn active" data-period="daily">
-        <i class="fa fa-calendar-day me-1"></i>Daily
-    </button>
-    <button class="period-btn" data-period="weekly">
-        <i class="fa fa-calendar-week me-1"></i>Weekly
-    </button>
-    <button class="period-btn" data-period="monthly">
-        <i class="fa fa-calendar-month me-1"></i>Monthly
-    </button>
+    <div class="period-controls">
+        <button class="period-btn active" data-period="daily">
+            <i class="fa fa-calendar-day me-1"></i>Daily
+        </button>
+        <button class="period-btn" data-period="weekly">
+            <i class="fa fa-calendar-week me-1"></i>Weekly
+        </button>
+        <button class="period-btn" data-period="monthly">
+            <i class="fa fa-calendar-month me-1"></i>Monthly
+        </button>
+    </div>
+    <div class="view-controls">
+        <button class="view-btn active" id="tableViewBtn" title="Table View">
+            <i class="fa fa-table"></i>
+        </button>
+        <button class="view-btn" id="cardViewBtn" title="Card View">
+            <i class="fa fa-th"></i>
+        </button>
+    </div>
 </div>
 
-<!-- Key Metrics -->
+<!-- Key Metrics & Advanced Stats -->
 <div class="row g-3 mb-4" id="metricsRow">
     <div class="col-md-3">
         <div class="metric-card">
