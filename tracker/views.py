@@ -3287,12 +3287,17 @@ def order_detail(request: HttpRequest, pk: int):
     try:
         from tracker.models import DelayReasonCategory, DelayReason
         import json
-        delay_reason_categories = list(DelayReasonCategory.objects.filter(is_active=True).values('category', 'id'))
-        for category in DelayReasonCategory.objects.filter(is_active=True):
+        delay_reason_categories = list(DelayReasonCategory.objects.filter(is_active=True))
+        for category in delay_reason_categories:
             reasons = list(DelayReason.objects.filter(category=category, is_active=True).values('id', 'reason_text'))
             delay_reasons_by_category[category.category] = reasons
+        # Convert to JSON string for template
+        delay_reasons_json = {}
+        for category in delay_reason_categories:
+            reasons = list(DelayReason.objects.filter(category=category, is_active=True).values('id', 'reason_text'))
+            delay_reasons_json[category.category] = reasons
     except Exception:
-        pass
+        delay_reasons_json = {}
 
     context = {
         "order": order,
