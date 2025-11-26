@@ -571,6 +571,10 @@ def dashboard(request: HttpRequest):
             # Revenue KPIs - Fresh calculation based on Gross Revenue (subtotal + VAT)
             'gross_revenue_this_month': gross_revenue_this_month,      # Gross revenue this month
             'total_gross_revenue': total_gross_revenue,                # Total gross revenue (all time)
+            'net_revenue_this_month': net_revenue_this_month,          # Net revenue this month (subtotal)
+            'total_net_revenue': total_net_revenue,                    # Total net revenue (all time)
+            'vat_this_month': vat_this_month,                          # VAT this month
+            'total_vat': total_vat,                                    # Total VAT (all time)
             'avg_invoice_amount': avg_invoice_amount,                  # Average invoice amount
             'invoices_this_month_count': invoices_this_month_count,    # Number of invoices this month
             'revenue_by_branch_tsh': revenue_by_branch_tsh,
